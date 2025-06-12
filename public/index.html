@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepIMG - Text to Image</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>DeepIMG Text to Image Generator</h1>
+  <form id="generate-form">
+    <input type="text" id="prompt" placeholder="Tulis prompt..." required />
+    <select id="style" required>
+      <option value="default">Default</option>
+      <option value="ghibli">Ghibli</option>
+      <option value="cyberpunk">Cyberpunk</option>
+      <option value="anime">Anime</option>
+      <option value="portrait">Portrait</option>
+      <option value="chibi">Chibi</option>
+      <option value="pixel art">Pixel Art</option>
+      <option value="oil painting">Oil Painting</option>
+      <option value="3d">3D</option>
+    </select>
+    <select id="size" required>
+      <option value="1:1">1:1 (1024x1024)</option>
+      <option value="3:2">3:2 (1080x720)</option>
+      <option value="2:3">2:3 (720x1080)</option>
+    </select>
+    <button type="submit">Generate Image</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('generate-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const prompt = document.getElementById('prompt').value;
+      const style = document.getElementById('style').value;
+      const size = document.getElementById('size').value;
+
+      document.getElementById('result').innerHTML = '⏳ Menghasilkan gambar...';
+
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, style, size })
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        document.getElementById('result').innerText = '❌ ' + data.error;
+      } else {
+        document.getElementById('result').innerHTML = `
+          <p><strong>Prompt:</strong> ${prompt}</p>
+          <p><strong>Style:</strong> ${style}</p>
+          <p><strong>Ukuran:</strong> ${size}</p>
+          <img src="${data.url}" alt="Generated Image" width="300" />
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
